@@ -2,15 +2,20 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-interface NodeConnectionProps {
-  nodeContent: {
-    title: string;
-    paragraphs: string[];
-  };
+interface NodeContent {
+  title: string;
+  paragraphs: string[];
   options: string[];
 }
 
-export default function NodeConnection({ nodeContent, options }: NodeConnectionProps) {
+interface NodeConnectionProps {
+  nodeContent: NodeContent;
+  parentOption?: string;
+  onOptionSelect: (option: string, parentNode: NodeContent) => void;
+  isChild?: boolean;
+}
+
+export default function NodeConnection({ nodeContent, parentOption, onOptionSelect, isChild = false }: NodeConnectionProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [lineCoords, setLineCoords] = useState<{ startX: number; startY: number; endX: number; endY: number } | null>(null);
   const nodeRef = useRef<HTMLDivElement>(null);
@@ -53,9 +58,15 @@ export default function NodeConnection({ nodeContent, options }: NodeConnectionP
     };
   }, [selectedOption]);
 
+  const handleOptionClick = (option: string) => {
+    setSelectedOption(option);
+    onOptionSelect(option, nodeContent);
+  };
+
   return (
-    <div ref={containerRef} className="relative z-10 mb-6">
+    <div ref={containerRef} className={`relative z-10 ${isChild ? 'mt-4' : 'mb-6'} w-[350px]`}>
       <div className="grid grid-cols-1 gap-6">
+        
         {/* Node */}
         <div ref={nodeRef} className="p-6 border-1 border-neutral-600 bg-black/30">
           <h2 className="text-white text-xl font-semibold mb-4">{nodeContent.title}</h2>
@@ -81,11 +92,11 @@ export default function NodeConnection({ nodeContent, options }: NodeConnectionP
 
         {/* Options */}
         <div ref={optionsRef} className="flex justify-start md:justify-center gap-4 overflow-x-auto scrollbar-hide whitespace-nowrap">
-          {options.map((option) => (
+          {nodeContent.options.map((option) => (
             <div
               key={option}
               data-option={option}
-              onClick={() => setSelectedOption(option)}
+              onClick={() => handleOptionClick(option)}
               className="p-6 rounded-full border-1 border-neutral-600 bg-black flex-shrink-0 cursor-pointer"
             >
               <span className="text-white text-lg">{option}</span>
