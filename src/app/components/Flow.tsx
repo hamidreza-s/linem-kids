@@ -7,6 +7,10 @@ import ReactFlow, {
   BackgroundVariant,
   NodeProps,
   Node,
+  Edge,
+  useEdgesState,
+  Handle,
+  Position,
 } from 'reactflow';
 import { Camera, Dices } from 'lucide-react';
 import 'reactflow/dist/style.css';
@@ -46,6 +50,18 @@ const CircleNode = ({ data, id }: NodeProps<CircleNodeData>) => {
         zIndex: 1000,
       }}
     >
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="right"
+        style={{ 
+          background: '#1a192b',
+          width: 0,
+          height: 0,
+          border: 'none',
+          opacity: 0
+        }}
+      />
       {data.label}
     </div>
   );
@@ -64,6 +80,18 @@ const SquareNode = ({ data }: NodeProps<SquareNodeData>) => {
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
       }}
     >
+      <Handle
+        type="target"
+        position={Position.Top}
+        id="top"
+        style={{ 
+          background: '#1a192b',
+          width: 0,
+          height: 0,
+          border: 'none',
+          opacity: 0
+        }}
+      />
       {data.content}
     </div>
   );
@@ -117,14 +145,28 @@ const initialNodes: Node<CustomNodeData>[] = [
         </div>
       )
     },
-    position: { x: 0, y: 50 },
+    position: { x: 0, y: 80 },
     connectable: false,
     draggable: false
   }
 ];
 
+const initialEdges: Edge[] = [
+  {
+    id: 'e1-3',
+    source: '2',
+    target: '3',
+    sourceHandle: 'right',
+    targetHandle: 'top',
+    type: 'bezier',
+    animated: false,
+    style: { stroke: '#1a192b', strokeWidth: 1.5 },
+  },
+];
+
 export default function Flow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const memoizedNodeTypes = useMemo(() => nodeTypes, []);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
@@ -135,7 +177,9 @@ export default function Flow() {
     <div style={{ width: '100vw', height: '100vh' }}>
       <ReactFlow
         nodes={nodes}
+        edges={edges}
         onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
         nodeTypes={memoizedNodeTypes}
         fitView
