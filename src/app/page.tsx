@@ -1,9 +1,10 @@
 'use client'
 
 import React from 'react'
-import { Box, useToken } from "@chakra-ui/react"
+import { Box, useToken, Image, Drawer, Portal, CloseButton, VStack, Icon, Text } from "@chakra-ui/react"
 import { useState, useRef, useEffect } from "react"
 import { createCardContent } from "@/data/cards"
+import { Menu, Settings, User, History, LogOut } from 'lucide-react'
 
 const useGrayColor = () => {
   const [gray500] = useToken('colors', ['gray.500'])
@@ -13,6 +14,7 @@ const useGrayColor = () => {
 export default function Home() {
   const gray500 = useGrayColor()
   const containerRef = useRef<HTMLDivElement>(null)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   const scrollToBottom = () => {
     if (containerRef.current) {
@@ -46,41 +48,88 @@ export default function Home() {
   }, [cards])
 
   return (
-    <Box
-      ref={containerRef}
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      height="100vh"
-      overflowY="auto"
-    >
-      {cards.map((card) => (
-        <Box key={card.id} display="flex" flexDirection="column" alignItems="center">
+    <>
+      {/* Header */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" height="10vh" borderBottomWidth="0.5px" borderColor={gray500} bg="white" px={4}>
+        <Box display="flex" alignItems="center" gap={2}>
+          <Image src="/linem-logo.png" alt="Linem Logo" height="32px" />
+          <Image src="/linem-text.png" alt="Linem" height="24px" />
+        </Box>
+        <Drawer.Root open={isDrawerOpen} onOpenChange={(details) => setIsDrawerOpen(details.open)}>
+          <Drawer.Trigger asChild>
+            <Box as="button" onClick={() => setIsDrawerOpen(true)}>
+              <Menu size={24} color={gray500} cursor="pointer" />
+            </Box>
+          </Drawer.Trigger>
+          <Portal>
+            <Drawer.Backdrop />
+            <Drawer.Positioner>
+              <Drawer.Content>
+                <Drawer.Body>
+                  <VStack gap={4} align="stretch" mt={4}>
+                    <Box display="flex" alignItems="center" gap={3} p={2} cursor="pointer" _hover={{ bg: 'gray.50' }}>
+                      <Icon as={User} boxSize={5} color={gray500} />
+                      <Text>Profile</Text>
+                    </Box>
+                    <Box display="flex" alignItems="center" gap={3} p={2} cursor="pointer" _hover={{ bg: 'gray.50' }}>
+                      <Icon as={History} boxSize={5} color={gray500} />
+                      <Text>History</Text>
+                    </Box>
+                    <Box display="flex" alignItems="center" gap={3} p={2} cursor="pointer" _hover={{ bg: 'gray.50' }}>
+                      <Icon as={Settings} boxSize={5} color={gray500} />
+                      <Text>Settings</Text>
+                    </Box>
+                    <Box display="flex" alignItems="center" gap={3} p={2} cursor="pointer" _hover={{ bg: 'gray.50' }}>
+                      <Icon as={LogOut} boxSize={5} color={gray500} />
+                      <Text>Logout</Text>
+                    </Box>
+                  </VStack>
+                </Drawer.Body>
+                <Drawer.CloseTrigger asChild>
+                  <CloseButton size="sm" position="absolute" top={2} right={2} />
+                </Drawer.CloseTrigger>
+              </Drawer.Content>
+            </Drawer.Positioner>
+          </Portal>
+        </Drawer.Root>
+      </Box>
 
-          {/* Empty Space */}
-          <Box display="flex" justifyContent="center" height="5vh"></Box>
+      <Box
+        ref={containerRef}
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        height="90vh"
+        overflowY="auto"
+      >
+        {cards.map((card) => (
+          <Box key={card.id} display="flex" flexDirection="column" alignItems="center">
 
-          {/* Card */}
-          <Box
-            p="4"
-            borderWidth="2px"
-            borderColor={gray500}
-            rounded="2xl"
-            bg="bg"
-            height="80vh"
-            width="90vw"
-          >
-            <Box display="flex" flexDirection="column" gap="4">
-              {card.content}
+            {/* Empty Space */}
+            <Box display="flex" justifyContent="center" height="5vh"></Box>
+
+            {/* Card */}
+            <Box
+              p="4"
+              borderWidth="2px"
+              borderColor={gray500}
+              rounded="2xl"
+              bg="bg"
+              height="70vh"
+              width="90vw"
+            >
+              <Box display="flex" flexDirection="column" gap="4">
+                {card.content}
+              </Box>
+            </Box>
+
+            {/* Options */}
+            <Box display="flex" justifyContent="center" height="15vh">
+              {card.getOptions(card.id)}
             </Box>
           </Box>
-
-          {/* Options */}
-          <Box display="flex" justifyContent="center" height="15vh">
-            {card.getOptions(card.id)}
-          </Box>
-        </Box>
-      ))}
-    </Box>
+        ))}
+      </Box>
+    </>
   )
 }
