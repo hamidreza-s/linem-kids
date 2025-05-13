@@ -178,6 +178,7 @@ export default function Home() {
           color="gray.500"
           rounded="2xl"
           width={["90%", "90%", "95%", "95%"]}
+          height={["calc(100vh - 120px)"]}
           bg="white"
         >
           <Box display="flex" flexDirection="column" gap="4">
@@ -224,6 +225,7 @@ export default function Home() {
               color="gray.500"
               rounded="2xl"
               width={["90%", "90%", "95%", "95%"]}
+              height={["calc(100vh - 150px)"]}
               bg="white"
             >
               <Text fontSize="lg" fontWeight="medium" mb="4">{card.id}st Card - Prompt Suggestions</Text>

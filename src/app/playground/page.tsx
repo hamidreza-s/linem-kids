@@ -4,7 +4,7 @@ import { Avatar, Box, Button, Card, Center, CloseButton, Drawer, Portal } from "
 
 const DrawerDemo = () => {
   return (
-    <Box margin="4">
+    <Box margin="4" bg="white">
       <Drawer.Root>
         <Drawer.Trigger asChild>
           <Button variant="outline" size="sm">
@@ -69,14 +69,7 @@ export default function Home() {
         <DrawerDemo />
       </Center>
       <Center>
-        <Box
-          p="4"
-          borderWidth="1px"
-          borderColor="border.disabled"
-          color="fg.disabled"
-        >
-          <CardDemo />
-        </Box>
+        <CardDemo />
       </Center>
     </>
   )
