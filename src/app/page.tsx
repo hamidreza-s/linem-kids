@@ -1,103 +1,252 @@
-import Image from "next/image";
+'use client'
+
+import { Box, Center, Text } from "@chakra-ui/react"
+import { Camera, Mic, Paperclip, Terminal } from "lucide-react"
+import { useState, useRef, useEffect } from "react"
+
+const cameraIcon = <Box
+  as="button"
+  display="flex"
+  alignItems="center"
+  justifyContent="center"
+  width="64px"
+  height="64px"
+  borderRadius="full"
+  border="2px solid"
+  borderColor="gray.500"
+  bg="white"
+  cursor="pointer"
+  _hover={{ bg: 'gray.200' }}
+  _active={{ bg: 'gray.100' }}
+>
+  <Camera color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={38} />
+</Box>
+
+const micIcon = <Box
+  as="button"
+  display="flex"
+  alignItems="center"
+  justifyContent="center"
+  width="64px"
+  height="64px"
+  borderRadius="full"
+  border="2px solid"
+  borderColor="gray.500"
+  bg="white"
+  cursor="pointer"
+  _hover={{ bg: 'gray.200' }}
+  _active={{ bg: 'gray.100' }}
+>
+  <Mic color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={38} />
+</Box>
+
+const paperclipIcon = <Box
+  as="button"
+  display="flex"
+  alignItems="center"
+  justifyContent="center"
+  width="64px"
+  height="64px"
+  borderRadius="full"
+  border="2px solid"
+  borderColor="gray.500"
+  bg="white"
+  cursor="pointer"
+  _hover={{ bg: 'gray.200' }}
+  _active={{ bg: 'gray.100' }}
+>
+  <Paperclip color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={38} />
+</Box>
+
+const promptIcon = (onClick: () => void) => (
+  <Box
+    as="button"
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+    width="64px"
+    height="64px"
+    borderRadius="full"
+    border="2px solid"
+    borderColor="gray.500"
+    bg="white"
+    cursor="pointer"
+    _hover={{ bg: 'gray.200' }}
+    _active={{ bg: 'gray.100' }}
+    onClick={onClick}
+  >
+    <Terminal color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={38} />
+  </Box>
+)
+
+const numberButton = (number: number) => (
+  <Box
+    as="button"
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+    width="64px"
+    height="64px"
+    borderRadius="full"
+    border="2px solid"
+    borderColor="gray.500"
+    bg="white"
+    cursor="pointer"
+    _hover={{ bg: 'gray.200' }}
+    _active={{ bg: 'gray.100' }}
+  >
+    <Text color="gray.500" fontSize="xl" fontWeight="bold">{number}</Text>
+  </Box>
+)
+
+const suggestions = [
+  [
+    "Analyze this image and provide key insights",
+    "Generate a detailed description of this scene",
+    "Identify objects and their relationships in this image"
+  ],
+  [
+    "What emotions does this image convey?",
+    "Describe the lighting and composition",
+    "What story does this image tell?"
+  ],
+  [
+    "What are the main colors and their impact?",
+    "Analyze the perspective and depth",
+    "What cultural elements are present?"
+  ],
+  [
+    "What's the historical context of this scene?",
+    "Describe the textures and materials",
+    "What's the focal point of this image?"
+  ],
+  [
+    "What's the mood of this photograph?",
+    "Analyze the balance and symmetry",
+    "What's happening outside the frame?"
+  ]
+]
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [cardCount, setCardCount] = useState(0)
+  const [cards, setCards] = useState<{ id: number; suggestions: string[] }[]>([])
+  const containerRef = useRef<HTMLDivElement>(null)
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  const scrollToBottom = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: containerRef.current.scrollHeight,
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [cards])
+
+  const handlePromptClick = () => {
+    const newCount = cardCount + 1
+    setCardCount(newCount)
+    setCards(prev => [...prev, {
+      id: newCount,
+      suggestions: suggestions[newCount % suggestions.length]
+    }])
+  }
+
+  return (
+    <Box
+      ref={containerRef}
+      position="fixed"
+      bottom="0"
+      left="0"
+      right="0"
+      p="4"
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      maxH="100vh"
+      overflowY="auto"
+    >
+      {/* Root Card */}
+      <Center>
+        <Box
+          p="4"
+          m="4"
+          borderWidth="2px"
+          borderColor="gray.500"
+          color="gray.500"
+          rounded="2xl"
+          width={["90%", "90%", "95%", "95%"]}
+          bg="white"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+          <Box display="flex" flexDirection="column" gap="4">
+            <Box display="flex" alignItems="center" gap="4">
+              <Camera color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={42} />
+              <Text color="gray.500">Take a photo to start with</Text>
+            </Box>
+
+            <Box display="flex" alignItems="center" gap="4">
+              <Mic color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={42} />
+              <Text color="gray.500">Record audio as a context</Text>
+            </Box>
+
+            <Box display="flex" alignItems="center" gap="4">
+              <Paperclip color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={42} />
+              <Text color="gray.500">Maybe a document or a file</Text>
+            </Box>
+
+            <Box display="flex" alignItems="center" gap="4">
+              <Terminal color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={42} />
+              <Text color="gray.500">Get more prompt suggestions</Text>
+            </Box>
+          </Box>
+        </Box>
+      </Center>
+
+      {/* Root Options */}
+      <Center gap="4">
+        {cameraIcon}
+        {micIcon}
+        {paperclipIcon}
+        {promptIcon(handlePromptClick)}
+      </Center>
+
+      {/* Prompt Suggestions Cards */}
+      {cards.map((card) => (
+        <Box key={card.id} width="100%" display="flex" flexDirection="column" alignItems="center">
+          <Center mt="4">
+            <Box
+              p="4"
+              m="4"
+              borderWidth="2px"
+              borderColor="gray.500"
+              color="gray.500"
+              rounded="2xl"
+              width={["90%", "90%", "95%", "95%"]}
+              bg="white"
+            >
+              <Text fontSize="lg" fontWeight="medium" mb="4">{card.id}st Card - Prompt Suggestions</Text>
+              <Box display="flex" flexDirection="column" gap="4">
+                {card.suggestions.map((suggestion, i) => (
+                  <Box key={i} display="flex" alignItems="center" gap="4">
+                    <Text color="gray.500" fontWeight="bold">{i + 1}.</Text>
+                    <Text color="gray.500">{suggestion}</Text>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          </Center>
+
+          {/* Options Row */}
+          <Center gap="4" mt="4" mb="4">
+            {numberButton(1)}
+            {numberButton(2)}
+            {numberButton(3)}
+            {promptIcon(handlePromptClick)}
+          </Center>
+        </Box>
+      ))}
+    </Box>
+  )
 }
