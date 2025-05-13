@@ -14,7 +14,13 @@ export default function RootLayout({
   return (
     <html className={inter.className} suppressHydrationWarning>
       <head />
-      <body>
+      <body className="bg-white min-h-screen" style={{
+        backgroundImage: `
+          linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+          linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)
+        `,
+        backgroundSize: '20px 20px'
+      }}>
         <Provider>{children}</Provider>
       </body>
     </html>
