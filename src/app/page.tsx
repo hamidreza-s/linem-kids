@@ -1,103 +1,13 @@
 'use client'
 
-import { Box, Center, Text } from "@chakra-ui/react"
+import { Box, Center, Text, useToken } from "@chakra-ui/react"
 import { Camera, Mic, Paperclip, Terminal } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 
-const cameraIcon = <Box
-  as="button"
-  display="flex"
-  alignItems="center"
-  justifyContent="center"
-  width="64px"
-  height="64px"
-  borderRadius="full"
-  border="2px solid"
-  borderColor="gray.500"
-  bg="white"
-  cursor="pointer"
-  _hover={{ bg: 'gray.200' }}
-  _active={{ bg: 'gray.100' }}
->
-  <Camera color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={38} />
-</Box>
-
-const micIcon = <Box
-  as="button"
-  display="flex"
-  alignItems="center"
-  justifyContent="center"
-  width="64px"
-  height="64px"
-  borderRadius="full"
-  border="2px solid"
-  borderColor="gray.500"
-  bg="white"
-  cursor="pointer"
-  _hover={{ bg: 'gray.200' }}
-  _active={{ bg: 'gray.100' }}
->
-  <Mic color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={38} />
-</Box>
-
-const paperclipIcon = <Box
-  as="button"
-  display="flex"
-  alignItems="center"
-  justifyContent="center"
-  width="64px"
-  height="64px"
-  borderRadius="full"
-  border="2px solid"
-  borderColor="gray.500"
-  bg="white"
-  cursor="pointer"
-  _hover={{ bg: 'gray.200' }}
-  _active={{ bg: 'gray.100' }}
->
-  <Paperclip color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={38} />
-</Box>
-
-const promptIcon = (onClick: () => void) => (
-  <Box
-    as="button"
-    display="flex"
-    alignItems="center"
-    justifyContent="center"
-    width="64px"
-    height="64px"
-    borderRadius="full"
-    border="2px solid"
-    borderColor="gray.500"
-    bg="white"
-    cursor="pointer"
-    _hover={{ bg: 'gray.200' }}
-    _active={{ bg: 'gray.100' }}
-    onClick={onClick}
-  >
-    <Terminal color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={38} />
-  </Box>
-)
-
-const numberButton = (number: number) => (
-  <Box
-    as="button"
-    display="flex"
-    alignItems="center"
-    justifyContent="center"
-    width="64px"
-    height="64px"
-    borderRadius="full"
-    border="2px solid"
-    borderColor="gray.500"
-    bg="white"
-    cursor="pointer"
-    _hover={{ bg: 'gray.200' }}
-    _active={{ bg: 'gray.100' }}
-  >
-    <Text color="gray.500" fontSize="xl" fontWeight="bold">{number}</Text>
-  </Box>
-)
+const useGrayColor = () => {
+  const [gray500] = useToken('colors', ['gray.500'])
+  return gray500
+}
 
 const suggestions = [
   [
@@ -128,9 +38,105 @@ const suggestions = [
 ]
 
 export default function Home() {
+  const gray500 = useGrayColor()
   const [cardCount, setCardCount] = useState(0)
   const [cards, setCards] = useState<{ id: number; suggestions: string[] }[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
+
+  const numberButton = (number: number) => (
+    <Box
+      as="button"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      width="64px"
+      height="64px"
+      borderRadius="full"
+      border="2px solid"
+      borderColor={gray500}
+      bg="bg"
+      cursor="pointer"
+      _hover={{ bg: 'bg.subtle' }}
+      _active={{ bg: 'bg.muted' }}
+    >
+      <Text color={gray500} fontSize="xl" fontWeight="bold">{number}</Text>
+    </Box>
+  )
+
+  const cameraIcon = <Box
+    as="button"
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+    width="64px"
+    height="64px"
+    borderRadius="full"
+    border="2px solid"
+    borderColor={gray500}
+    bg="bg"
+    cursor="pointer"
+    _hover={{ bg: 'bg.subtle' }}
+    _active={{ bg: 'bg.muted' }}
+  >
+    <Camera color={gray500} strokeWidth={1.5} size={38} />
+  </Box>
+
+  const micIcon = <Box
+    as="button"
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+    width="64px"
+    height="64px"
+    borderRadius="full"
+    border="2px solid"
+    borderColor={gray500}
+    bg="bg"
+    cursor="pointer"
+    _hover={{ bg: 'bg.subtle' }}
+    _active={{ bg: 'bg.muted' }}
+  >
+    <Mic color={gray500} strokeWidth={1.5} size={38} />
+  </Box>
+
+  const paperclipIcon = <Box
+    as="button"
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+    width="64px"
+    height="64px"
+    borderRadius="full"
+    border="2px solid"
+    borderColor={gray500}
+    bg="bg"
+    cursor="pointer"
+    _hover={{ bg: 'bg.subtle' }}
+    _active={{ bg: 'bg.muted' }}
+  >
+    <Paperclip color={gray500} strokeWidth={1.5} size={38} />
+  </Box>
+
+  const promptIcon = (onClick: () => void) => (
+    <Box
+      as="button"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      width="64px"
+      height="64px"
+      borderRadius="full"
+      border="2px solid"
+      borderColor={gray500}
+      bg="bg"
+      cursor="pointer"
+      _hover={{ bg: 'bg.subtle' }}
+      _active={{ bg: 'bg.muted' }}
+      onClick={onClick}
+    >
+      <Terminal color={gray500} strokeWidth={1.5} size={38} />
+    </Box>
+  )
 
   const scrollToBottom = () => {
     if (containerRef.current) {
@@ -174,32 +180,32 @@ export default function Home() {
           p="4"
           m="4"
           borderWidth="2px"
-          borderColor="gray.500"
-          color="gray.500"
+          borderColor={gray500}
+          color="fg"
           rounded="2xl"
           width={["90%", "90%", "95%", "95%"]}
-          height={["calc(100vh - 120px)"]}
-          bg="white"
+          height={["calc(70vh)"]}
+          bg="bg"
         >
           <Box display="flex" flexDirection="column" gap="4">
             <Box display="flex" alignItems="center" gap="4">
-              <Camera color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={42} />
-              <Text color="gray.500">Take a photo to start with</Text>
+              <Camera color={gray500} strokeWidth={1.5} size={42} />
+              <Text color="fg">Take a photo to start with</Text>
             </Box>
 
             <Box display="flex" alignItems="center" gap="4">
-              <Mic color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={42} />
-              <Text color="gray.500">Record audio as a context</Text>
+              <Mic color={gray500} strokeWidth={1.5} size={42} />
+              <Text color="fg">Record audio as a context</Text>
             </Box>
 
             <Box display="flex" alignItems="center" gap="4">
-              <Paperclip color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={42} />
-              <Text color="gray.500">Maybe a document or a file</Text>
+              <Paperclip color={gray500} strokeWidth={1.5} size={42} />
+              <Text color="fg">Maybe a document or a file</Text>
             </Box>
 
             <Box display="flex" alignItems="center" gap="4">
-              <Terminal color="var(--chakra-colors-gray-500)" strokeWidth={1.5} size={42} />
-              <Text color="gray.500">Get more prompt suggestions</Text>
+              <Terminal color={gray500} strokeWidth={1.5} size={42} />
+              <Text color="fg">Get more prompt suggestions</Text>
             </Box>
           </Box>
         </Box>
@@ -221,19 +227,19 @@ export default function Home() {
               p="4"
               m="4"
               borderWidth="2px"
-              borderColor="gray.500"
-              color="gray.500"
+              borderColor={gray500}
+              color="fg"
               rounded="2xl"
               width={["90%", "90%", "95%", "95%"]}
-              height={["calc(100vh - 150px)"]}
-              bg="white"
+              height={["calc(70vh)"]}
+              bg="bg"
             >
               <Text fontSize="lg" fontWeight="medium" mb="4">{card.id}st Card - Prompt Suggestions</Text>
               <Box display="flex" flexDirection="column" gap="4">
                 {card.suggestions.map((suggestion, i) => (
                   <Box key={i} display="flex" alignItems="center" gap="4">
-                    <Text color="gray.500" fontWeight="bold">{i + 1}.</Text>
-                    <Text color="gray.500">{suggestion}</Text>
+                    <Text color="fg" fontWeight="bold">{i + 1}.</Text>
+                    <Text color="fg">{suggestion}</Text>
                   </Box>
                 ))}
               </Box>
