@@ -5,7 +5,7 @@ import { ThemeProvider } from "next-themes"
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
       <ChakraProvider value={defaultSystem}>
         {props.children}
       </ChakraProvider>
