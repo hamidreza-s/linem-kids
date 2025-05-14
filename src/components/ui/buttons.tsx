@@ -11,7 +11,7 @@ interface IconButtonProps extends ButtonProps {
   iconId: string
 }
 
-export const NumberButton = ({ number, cardId }: { number: number } & ButtonProps) => (
+export const NumberButton = ({ number, cardId, onClick }: { number: number } & ButtonProps) => (
   <Box
     key={`card${cardId}-button${number}`}
     as="button"
@@ -27,6 +27,7 @@ export const NumberButton = ({ number, cardId }: { number: number } & ButtonProp
     cursor="pointer"
     _hover={{ bg: 'bg.subtle' }}
     _active={{ bg: 'bg.muted' }}
+    onClick={onClick}
   >
     <Text color="gray.500" fontSize="xl" fontWeight="bold">{number}</Text>
   </Box>
