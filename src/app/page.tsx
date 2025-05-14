@@ -4,7 +4,7 @@ import React from 'react'
 import { Box, useToken, Image, Drawer, Portal, CloseButton, VStack, Icon, Text } from "@chakra-ui/react"
 import { useState, useRef, useEffect } from "react"
 import { createCardContent, CardContent } from "@/data/cards"
-import { Menu, Settings, User, History, LogOut } from 'lucide-react'
+import { Menu, Settings, User, History, LogOut, VolumeOff, Volume2, Plus } from 'lucide-react'
 
 const useGrayColor = () => {
   const [gray500] = useToken('colors', ['gray.500'])
@@ -16,6 +16,7 @@ export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [expandedSpaces, setExpandedSpaces] = useState<{ [key: number]: boolean }>({})
+  const [isMuted, setIsMuted] = useState(true)
 
   const scrollToBottom = () => {
     if (containerRef.current) {
@@ -60,10 +61,36 @@ export default function Home() {
     <>
       {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center" height="10vh" borderBottomWidth="0.5px" borderColor={gray500} bg="white" px={4}>
+       
+        {/* Logo */}
         <Box display="flex" alignItems="center" gap={2}>
           <Image src="/linem-logo.png" alt="Linem Logo" height="32px" />
           <Image src="/linem-text.png" alt="Linem" height="24px" />
         </Box>
+
+        {/* Controls */}
+        <Box display="flex" gap={4} ml="auto" mr={4}>
+          {/* Volume Off/On */}
+          <Box
+            as="button"
+            onClick={() => setIsMuted(!isMuted)}
+
+            opacity={isMuted ? 0.5 : 1}
+            transition="opacity 0.2s"
+          >
+            {isMuted ? (
+              <VolumeOff size={24} color={gray500} cursor="pointer" />
+            ) : (
+              <Volume2 size={24} color={gray500} cursor="pointer" />
+            )}
+          </Box>
+          {/* New Card */}
+          <Box as="button" onClick={() => console.log('New Card')}>
+            <Plus size={24} color={gray500} cursor="pointer" />
+          </Box>
+        </Box>
+        
+        {/* Drawer */}
         <Drawer.Root open={isDrawerOpen} onOpenChange={(details) => setIsDrawerOpen(details.open)}>
           <Drawer.Trigger asChild>
             <Box as="button" onClick={() => setIsDrawerOpen(true)}>
