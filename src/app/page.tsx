@@ -11,11 +11,25 @@ const useGrayColor = () => {
   return gray500
 }
 
+const getHeightForLevel = (level: number): { cardHeight: string, optionsHeight: string } => {
+  switch (level) {
+    case 1: // Small shift
+      return { cardHeight: "50vh", optionsHeight: "35vh" };
+    case 2: // Medium shift
+      return { cardHeight: "40vh", optionsHeight: "45vh" };
+    case 3: // Big shift
+      return { cardHeight: "30vh", optionsHeight: "55vh" };
+    case 0: // Default (not expanded)
+    default:
+      return { cardHeight: "70vh", optionsHeight: "15vh" };
+  }
+};
+
 export default function Home() {
   const gray500 = useGrayColor()
   const containerRef = useRef<HTMLDivElement>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const [expandedSpaces, setExpandedSpaces] = useState<{ [key: number]: boolean }>({})
+  const [expansionLevels, setExpansionLevels] = useState<{ [key: number]: number }>({})
   const [isMuted, setIsMuted] = useState(true)
 
   const scrollToBottom = () => {
@@ -40,12 +54,22 @@ export default function Home() {
     })
   }
 
-  const handleMoreOptions = (cardId: number) => {
-    setExpandedSpaces(prev => ({
-      ...prev,
-      [cardId]: !prev[cardId]
-    }))
-  }
+  const handleMoreOptions = (cardId: number, level: number) => {
+    setExpansionLevels(prev => {
+      let newLevelValue;
+      if (level !== undefined && level >= 0 && level <= 3) {
+        newLevelValue = level;
+      } else {
+        // Cycle if level is not provided or is invalid
+        const currentLevel = prev[cardId] || 0; // Default to 0 if not set for cycling
+        newLevelValue = (currentLevel + 1) % 4; // Cycles 0, 1, 2, 3, then back to 0
+      }
+      return {
+        ...prev,
+        [cardId]: newLevelValue
+      };
+    });
+  };
 
   const { mockData, rootCardContent } = createCardContent(gray500, handleMoreOptions, handleNextCard)
 
@@ -61,11 +85,12 @@ export default function Home() {
     <>
       {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center" height="10vh" borderBottomWidth="0.5px" borderColor={gray500} bg="white" px={4}>
-       
+
         {/* Logo */}
         <Box display="flex" alignItems="center" gap={2}>
           <Image src="/linem-logo.png" alt="Linem Logo" height="32px" />
           <Image src="/linem-text.png" alt="Linem" height="24px" />
+          <Text>For Kids</Text>
         </Box>
 
         {/* Controls */}
@@ -89,7 +114,7 @@ export default function Home() {
             <Plus size={24} color={gray500} cursor="pointer" />
           </Box>
         </Box>
-        
+
         {/* Drawer */}
         <Drawer.Root open={isDrawerOpen} onOpenChange={(details) => setIsDrawerOpen(details.open)}>
           <Drawer.Trigger asChild>
@@ -138,45 +163,47 @@ export default function Home() {
         height="90vh"
         overflowY="auto"
       >
-        {cards.map((card) => (
-          <Box key={card.id} display="flex" flexDirection="column" alignItems="center">
-            {/* Empty Space */}
-            <Box display="flex" justifyContent="center" height="5vh">
+        {cards.map((card) => {
+          const currentExpansionLevel = expansionLevels[card.id] || 0;
+          const heights = getHeightForLevel(currentExpansionLevel);
+          return (
+            <Box key={card.id} display="flex" flexDirection="column" alignItems="center">
+              {/* Empty Space */}
+              <Box display="flex" justifyContent="center" height="5vh">
 
-            </Box>
+              </Box>
 
-            {/* Card */}
-            <Box
-              p="4"
-              borderWidth="2px"
-              borderColor={gray500}
-              rounded="2xl"
-              bg="bg"
-              height={expandedSpaces[card.id] ? "40vh" : "70vh"}
-              width="90vw"
-              transition="height 0.2s"
-            >
-              <Box display="flex" flexDirection="column" gap="4">
-                {card.content}
+              {/* Card */}
+              <Box
+                p="4"
+                borderWidth="2px"
+                borderColor={gray500}
+                rounded="2xl"
+                bg="bg"
+                height={heights.cardHeight}
+                width="90vw"
+                transition="height 0.2s"
+              >
+                <Box display="flex" flexDirection="column" gap="4">
+                  {card.content}
+                </Box>
+              </Box>
+
+              {/* Options */}
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                height={heights.optionsHeight}
+                width="90vw"
+                transition="height 0.2s"
+              >
+                {card.getOptions(card.id)}
+                {currentExpansionLevel > 0 && card.getMoreOptions(card.id)}
               </Box>
             </Box>
-
-            {/* Options */}
-            <Box
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              height={expandedSpaces[card.id] ? "45vh" : "15vh"}
-              width="90vw"
-              transition="height 0.2s"
-            >
-              {card.getOptions(card.id)}
-              {expandedSpaces[card.id] ?
-                card.getMoreOptions(card.id)
-                : null}
-            </Box>
-          </Box>
-        ))}
+          )
+        })}
       </Box>
     </>
   )
