@@ -3,34 +3,21 @@
 import React from 'react'
 import { Box, useToken, Image, Drawer, Portal, CloseButton, VStack, Icon, Text } from "@chakra-ui/react"
 import { useState, useRef, useEffect } from "react"
-import { createCardContent, CardContent } from "@/data/cards"
+import { createRootCardContent, CardContent } from "@/data/cards"
 import { Menu, Settings, User, History, LogOut, VolumeOff, Volume2, Plus } from 'lucide-react'
+import { getHeightForLevel } from "@/utils/card-helpers"
 
 const useGrayColor = () => {
   const [gray500] = useToken('colors', ['gray.500'])
   return gray500
 }
 
-const getHeightForLevel = (level: number): { cardHeight: string, optionsHeight: string } => {
-  switch (level) {
-    case 1: // Small shift
-      return { cardHeight: "50vh", optionsHeight: "35vh" };
-    case 2: // Medium shift
-      return { cardHeight: "40vh", optionsHeight: "45vh" };
-    case 3: // Big shift
-      return { cardHeight: "30vh", optionsHeight: "55vh" };
-    case 0: // Default (not expanded)
-    default:
-      return { cardHeight: "70vh", optionsHeight: "15vh" };
-  }
-};
-
 export default function Home() {
   const gray500 = useGrayColor()
   const containerRef = useRef<HTMLDivElement>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const [expansionLevels, setExpansionLevels] = useState<{ [key: number]: number }>({})
   const [isMuted, setIsMuted] = useState(true)
+  const [expansionLevels, setExpansionLevels] = useState<{ [key: number]: number }>({})
 
   const scrollToBottom = () => {
     if (containerRef.current) {
@@ -44,34 +31,32 @@ export default function Home() {
   const handleNextCard = () => {
     setCards(prev => {
       const newCount = prev.length
-      console.log('Current cards:', prev.length)
-      console.log('Adding new card with ID:', newCount)
-      const nextCard = mockData[newCount % mockData.length]
       return [...prev, {
-        ...nextCard,
-        id: newCount
+        id: newCount,
+        ...rootCardContent
       }]
     })
   }
 
   const handleMoreOptions = (cardId: number, level: number) => {
     setExpansionLevels(prev => {
-      let newLevelValue;
-      if (level !== undefined && level >= 0 && level <= 3) {
-        newLevelValue = level;
-      } else {
-        // Cycle if level is not provided or is invalid
-        const currentLevel = prev[cardId] || 0; // Default to 0 if not set for cycling
-        newLevelValue = (currentLevel + 1) % 4; // Cycles 0, 1, 2, 3, then back to 0
+      const currentLevel = prev[cardId] || 0;
+      // If we're already at the specified level, collapse back to 0
+      if (currentLevel === level) {
+        return {
+          ...prev,
+          [cardId]: 0
+        };
       }
+      // Otherwise, set to the specified level
       return {
         ...prev,
-        [cardId]: newLevelValue
+        [cardId]: level
       };
     });
   };
 
-  const { mockData, rootCardContent } = createCardContent(gray500, handleMoreOptions, handleNextCard)
+  const rootCardContent = createRootCardContent(handleMoreOptions, handleNextCard)
 
   const [cards, setCards] = useState<CardContent[]>([
     { id: 0, ...rootCardContent }
@@ -170,7 +155,6 @@ export default function Home() {
             <Box key={card.id} display="flex" flexDirection="column" alignItems="center">
               {/* Empty Space */}
               <Box display="flex" justifyContent="center" height="5vh">
-
               </Box>
 
               {/* Card */}
