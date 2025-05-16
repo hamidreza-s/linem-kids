@@ -1,7 +1,9 @@
+'use client'
+
 import React from 'react'
 import { Box, Text } from "@chakra-ui/react"
 import { IconButton } from "@/components/ui/buttons"
-import { getEmojisForCard, EMOJI_SIZE } from "@/utils/emojis"
+import { EMOJI_SIZE } from "@/utils/card-options"
 
 export type CardContent = {
   id: number;
@@ -12,8 +14,10 @@ export type CardContent = {
 
 export const createRootCardContent = (
   handleMoreOptions: (cardId: number, level: number) => void,
-  handleNextCard: () => void
+  handleNextCard: () => void,
+  options: { index: number; emoji: string }[],
 ): Omit<CardContent, 'id'> => {
+  console.log(options)
   return {
     content: [
       <Box key="root-item0" display="flex" alignItems="center" gap="4">
@@ -21,12 +25,9 @@ export const createRootCardContent = (
       </Box>
     ],
     getOptions: (cardId: number) => {
-
-      const allEmojis = getEmojisForCard(cardId, 11);
-      
       return (
         <Box display="flex" gap="4" mt="4">
-          {allEmojis.slice(0, 3).map((emoji, index) => (
+          {options.slice(0, 3).map((emoji, index) => (
             <IconButton
               key={index}
               icon={<Text fontSize={EMOJI_SIZE}>{emoji.emoji}</Text>}
@@ -45,11 +46,10 @@ export const createRootCardContent = (
       );
     },
     getMoreOptions: (cardId: number) => {
-      const allEmojis = getEmojisForCard(cardId, 11);
       return (
         <>
           <Box display="flex" gap="4" mt="4">
-            {allEmojis.slice(3, 7).map((emoji, index) => (
+            {options.slice(3, 7).map((emoji, index) => (
               <IconButton
                 key={index}
                 icon={<Text fontSize={EMOJI_SIZE}>{emoji.emoji}</Text>}
@@ -60,7 +60,7 @@ export const createRootCardContent = (
             ))}
           </Box>
           <Box display="flex" gap="4" mt="4">
-            {allEmojis.slice(7, 11).map((emoji, index) => (
+            {options.slice(7, 11).map((emoji, index) => (
               <IconButton
                 key={index}
                 icon={<Text fontSize={EMOJI_SIZE}>{emoji.emoji}</Text>}

@@ -2,7 +2,7 @@
 
 export const EMOJI_SIZE = "3xl"; // Can be: xs, sm, md, lg, xl, 2xl, 3xl, 4xl, 5xl, 6xl, 7xl, 8xl, 9xl
 
-export const emojis = [
+export const options = [
     { "index": 1, "emoji": "🐶", "codepoint": "U+1F436", "name": "Dog Face", "shortcode": ":dog:", "verb": "make it a dog" },
     { "index": 2, "emoji": "🐱", "codepoint": "U+1F431", "name": "Cat Face", "shortcode": ":cat_face:", "verb": "make it a cat" },
     { "index": 3, "emoji": "🐰", "codepoint": "U+1F430", "name": "Rabbit Face", "shortcode": ":rabbit:", "verb": "make it a rabbit" },
@@ -29,22 +29,36 @@ export const emojis = [
     { "index": 24, "emoji": "✨", "codepoint": "U+2728", "name": "Sparkles", "shortcode": ":sparkles:", "verb": "make it sparkle" }
 ];
 
-// Get a random emoji from the list
-export const getRandomEmoji = () => {
-    return emojis[Math.floor(Math.random() * emojis.length)];
+// Get a random option from the list
+export const getRandomOption = () => {
+    return options[Math.floor(Math.random() * options.length)];
 };
 
-// Get multiple random emojis
-export const getRandomEmojis = (count: number) => {
-    const shuffled = [...emojis].sort(() => Math.random() - 0.5);
+// Get multiple random options
+export const getRandomOptions = (count: number) => {
+    const shuffled = [...options].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, count);
 };
 
-// Get emojis for a specific card (deterministic based on cardId)
-export const getEmojisForCard = (cardId: number, count: number) => {
-    const shuffled = [...emojis].sort(() => {
+// Get options for a specific card (deterministic based on cardId)
+export const getOptionsForCard = (cardId: number, count: number) => {
+    const shuffled = [...options].sort(() => {
         const seed = cardId + Math.random();
         return Math.sin(seed) * 10000 - Math.floor(Math.sin(seed) * 10000);
     });
     return shuffled.slice(0, count);
-};  
+};
+
+export const shuffle = <T>(array: T[]): T[] => {
+    const result = [...array]; // Create a copy to avoid mutating the original
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  }
+
+  export const getShuffledOptions = (count: number) => {
+    const shuffled = shuffle(options);
+    return shuffled.slice(0, count);
+  }
