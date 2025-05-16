@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box, Text } from "@chakra-ui/react"
-import { Bird, Bug, Cat, Dices, Dog, Fish, Panda, RabbitIcon, Rat, Shrimp, Turtle, Worm } from "lucide-react"
 import { IconButton } from "@/components/ui/buttons"
+import { getEmojisForCard, EMOJI_SIZE } from "@/utils/emojis"
 
 export type CardContent = {
   id: number;
@@ -20,89 +20,58 @@ export const createRootCardContent = (
         <Text color="fg">Pick your favorite animal</Text>
       </Box>
     ],
-    getOptions: (cardId: number) => (
-      <Box display="flex" gap="4" mt="4">
-        <IconButton
-          icon={<Cat color="#718096" strokeWidth={1.5} size={38} />}
-          cardId={cardId}
-          iconId="camera"
-          onClick={handleNextCard}
-        />
-        <IconButton
-          icon={<Bird color="#718096" strokeWidth={1.5} size={38} />}
-          cardId={cardId}
-          iconId="mic"
-          onClick={handleNextCard}
-        />
-        <IconButton
-          icon={<Panda color="#718096" strokeWidth={1.5} size={38} />}
-          cardId={cardId}
-          iconId="paperclip"
-          onClick={handleNextCard}
-        />
-        <IconButton
-          icon={<Dices color="#718096" strokeWidth={1.5} size={38} />}
-          cardId={cardId}
-          iconId="terminal"
-          onClick={() => handleMoreOptions(cardId, 1)}
-        />
-      </Box>
-    ),
-    getMoreOptions: (cardId: number) => (
-      <>
+    getOptions: (cardId: number) => {
+
+      const allEmojis = getEmojisForCard(cardId, 11);
+      
+      return (
         <Box display="flex" gap="4" mt="4">
+          {allEmojis.slice(0, 3).map((emoji, index) => (
+            <IconButton
+              key={index}
+              icon={<Text fontSize={EMOJI_SIZE}>{emoji.emoji}</Text>}
+              cardId={cardId}
+              iconId={`emoji-${index}`}
+              onClick={handleNextCard}
+            />
+          ))}
           <IconButton
-            icon={<RabbitIcon color="#718096" strokeWidth={1.5} size={38} />}
+            icon={<Text fontSize={EMOJI_SIZE}>➕</Text>}
             cardId={cardId}
-            iconId="camera"
-            onClick={handleNextCard}
-          />
-          <IconButton
-            icon={<Dog color="#718096" strokeWidth={1.5} size={38} />}
-            cardId={cardId}
-            iconId="mic"
-            onClick={handleNextCard}
-          />
-          <IconButton
-            icon={<Turtle color="#718096" strokeWidth={1.5} size={38} />}
-            cardId={cardId}
-            iconId="paperclip"
-            onClick={handleNextCard}
-          />
-          <IconButton
-            icon={<Bug color="#718096" strokeWidth={1.5} size={38} />}
-            cardId={cardId}
-            iconId="terminal"
-            onClick={handleNextCard}
+            iconId="more"
+            onClick={() => handleMoreOptions(cardId, 1)}
           />
         </Box>
-        <Box display="flex" gap="4" mt="4">
-          <IconButton
-            icon={<Fish color="#718096" strokeWidth={1.5} size={38} />}
-            cardId={cardId}
-            iconId="camera"
-            onClick={handleNextCard}
-          />
-          <IconButton
-            icon={<Rat color="#718096" strokeWidth={1.5} size={38} />}
-            cardId={cardId}
-            iconId="mic"
-            onClick={handleNextCard}
-          />
-          <IconButton
-            icon={<Shrimp color="#718096" strokeWidth={1.5} size={38} />}
-            cardId={cardId}
-            iconId="paperclip"
-            onClick={handleNextCard}
-          />
-          <IconButton
-            icon={<Worm color="#718096" strokeWidth={1.5} size={38} />}
-            cardId={cardId}
-            iconId="terminal"
-            onClick={handleNextCard}
-          />
-        </Box>
-      </>
-    )
+      );
+    },
+    getMoreOptions: (cardId: number) => {
+      const allEmojis = getEmojisForCard(cardId, 11);
+      return (
+        <>
+          <Box display="flex" gap="4" mt="4">
+            {allEmojis.slice(3, 7).map((emoji, index) => (
+              <IconButton
+                key={index}
+                icon={<Text fontSize={EMOJI_SIZE}>{emoji.emoji}</Text>}
+                cardId={cardId}
+                iconId={`emoji-${index + 4}`}
+                onClick={handleNextCard}
+              />
+            ))}
+          </Box>
+          <Box display="flex" gap="4" mt="4">
+            {allEmojis.slice(7, 11).map((emoji, index) => (
+              <IconButton
+                key={index}
+                icon={<Text fontSize={EMOJI_SIZE}>{emoji.emoji}</Text>}
+                cardId={cardId}
+                iconId={`emoji-${index + 8}`}
+                onClick={handleNextCard}
+              />
+            ))}
+          </Box>
+        </>
+      );
+    }
   }
 } 
