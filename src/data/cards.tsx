@@ -6,33 +6,37 @@ import { IconButton } from "@/components/ui/buttons"
 import { EMOJI_SIZE, Option } from "@/utils/card-options"
 
 export type CardContent = {
-  id: number;
+  id: string;
   content: React.ReactNode[];
-  getOptions: (cardId: number) => React.ReactNode;
-  getMoreOptions: (cardId: number) => React.ReactNode;
+  image: string;
+  getOptions: (cardId: string) => React.ReactNode;
+  getMoreOptions: (cardId: string) => React.ReactNode;
 }
 
 export const createCard = (
-  cardId: number,
+  cardId: string,
   content: React.ReactNode[],
+  image: string,
   options: Option[],
-  onOptionClick: (cardId: number, option?: Option) => void,
+  onOptionClick: (cardId: string, option?: Option) => void,
 ): CardContent => {
   return {
     id: cardId,
     content: content,
-    getOptions: (cardId: number) => {
+    image: image,
+    getOptions: (cardId: string) => {
       return (
         <Box display="flex" gap="4" mt="4">
           {options.slice(0, 3).map((option, index) => (
             <IconButton
-              key={index}
+              key={`${cardId}-option-${index}`}
               icon={<Text fontSize={EMOJI_SIZE}>{option.option}</Text>}
               cardId={cardId}
               onClick={() => onOptionClick(cardId, option)}
             />
           ))}
           <IconButton
+            key={`${cardId}-more`}
             icon={<Text fontSize={EMOJI_SIZE}>➕</Text>}
             cardId={cardId}
             iconId="more"
@@ -41,13 +45,13 @@ export const createCard = (
         </Box>
       );
     },
-    getMoreOptions: (cardId: number) => {
+    getMoreOptions: (cardId: string) => {
       return (
         <>
           <Box display="flex" gap="4" mt="4">
             {options.slice(3, 7).map((option, index) => (
               <IconButton
-                key={index}
+                key={`${cardId}-more-option-${index}`}
                 icon={<Text fontSize={EMOJI_SIZE}>{option.option}</Text>}
                 cardId={cardId}
                 onClick={() => onOptionClick(cardId, option)}
@@ -57,7 +61,7 @@ export const createCard = (
           <Box display="flex" gap="4" mt="4">
             {options.slice(7, 11).map((option, index) => (
               <IconButton
-                key={index}
+                key={`${cardId}-more-option-${index + 7}`}
                 icon={<Text fontSize={EMOJI_SIZE}>{option.option}</Text>}
                 cardId={cardId}
                 onClick={() => onOptionClick(cardId, option)}

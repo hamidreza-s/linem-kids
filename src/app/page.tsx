@@ -9,12 +9,21 @@ import { getHeightForLevel } from "@/utils/card-helpers"
 import { getShuffledOptions, Option } from '@/utils/card-options'
 import dynamic from 'next/dynamic'
 
+
+const initialImage = "https://ga4qgrohzaj2x9di.public.blob.vercel-storage.com/card-0-intro-0-BnSrlmKOEIySWXig7z4vKj70ZmJcXV.jpg"
 const initialContent = [
   <Box key="root-item0" display="flex" alignItems="center" gap="4">
-    <Text color="fg">Pick your favorite animal</Text>
+    <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
+      <Image src={initialImage} alt="Initial Image" height="200px" objectFit="contain" rounded="2xl" />
+      <Text color="fg" fontSize="2xl">Pick your favorite animal</Text>
+    </Box>
   </Box>
 ]
 const initialOptions = getShuffledOptions(11)
+
+const generateUniqueId = () => {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+}
 
 const useGrayColor = () => {
   const [gray500] = useToken('colors', ['gray.500'])
@@ -27,8 +36,9 @@ const Home = () => {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
-  const [expansionLevels, setExpansionLevels] = useState<{ [key: number]: number }>({})
+  const [expansionLevels, setExpansionLevels] = useState<{ [key: string]: number }>({})
   const [options] = useState<Option[]>(initialOptions)
+  const [clientId] = useState(() => Math.random().toString(36).substring(2, 15))
 
   const scrollToBottom = () => {
     if (containerRef.current) {
@@ -39,7 +49,7 @@ const Home = () => {
     }
   }
 
-  const handleCardClick = (cardId: number, option?: Option) => {
+  const handleCardClick = (cardId: string, option?: Option) => {
     if (!option) {
       handleMoreOptions(cardId, 1)
     } else {
@@ -48,22 +58,55 @@ const Home = () => {
   }
 
   const [cards, setCards] = useState<CardContent[]>([
-    createCard(0, initialContent, options, handleCardClick)
+    createCard(generateUniqueId(), initialContent, initialImage, options, handleCardClick)
   ])
 
-  const handleNextCard = (selectedOption?: Option) => {
-    setCards(prev => {
-      const newCount = prev.length
-      const newContent = selectedOption ? [
-        <Box key={`card-${newCount}-content`} display="flex" alignItems="center" gap="4">
-          <Text color="fg">You selected: {selectedOption.option}</Text>
+  const handleNextCard = async (selectedOption?: Option) => {
+    if (selectedOption) {
+      const newId = generateUniqueId();
+      
+      // Create a temporary card with loading state
+      const tempContent = [
+        <Box key={`loading-${newId}`} display="flex" alignItems="center" gap="4">
+          <Text color="fg">Loading...</Text>
         </Box>
-      ] : []
-      return [...prev, createCard(newCount, newContent, options, handleCardClick)]
-    })
+      ];
+      
+      // Add the temporary card
+      setCards(prev => [...prev, createCard(newId, tempContent, initialImage, options, handleCardClick)]);
+
+      try {
+        const response = await fetch(`/api/generate?session=${clientId}&prompt=${encodeURIComponent(selectedOption.option)}`);
+        const data = await response.json();
+        
+        if (data && data[0] && data[0].url) {
+          const newContent = [
+            <Box key={`content-${newId}`} display="flex" alignItems="center" gap="4">
+              <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
+                <Image src={data[0].url} alt="Generated Image" height="200px" objectFit="contain" rounded="2xl" />
+                <Text color="fg">You selected: {selectedOption.option}</Text>
+              </Box>
+            </Box>
+          ];
+          
+          // Update the card with the new content
+          setCards(prev => {
+            const updatedCards = [...prev];
+            const cardIndex = updatedCards.findIndex(card => card.id === newId);
+            if (cardIndex !== -1) {
+              updatedCards[cardIndex] = createCard(newId, newContent, data[0].url, options, handleCardClick);
+            }
+            return updatedCards;
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching generated image:', error);
+        // Optionally handle error state here
+      }
+    }
   }
 
-  const handleMoreOptions = (cardId: number, level: number) => {
+  const handleMoreOptions = (cardId: string, level: number) => {
     setExpansionLevels(prev => {
       const currentLevel = prev[cardId] || 0;
       // If we're already at the specified level, collapse back to 0

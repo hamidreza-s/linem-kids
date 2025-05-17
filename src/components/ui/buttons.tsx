@@ -2,7 +2,7 @@ import React from 'react'
 import { Box, Text } from "@chakra-ui/react"
 
 interface ButtonProps {
-  cardId: number
+  cardId: string
   onClick?: () => void
 }
 
