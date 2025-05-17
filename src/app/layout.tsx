@@ -8,7 +8,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Linem',
+  title: 'Linem Kids',
 }
 
 export default function RootLayout({
