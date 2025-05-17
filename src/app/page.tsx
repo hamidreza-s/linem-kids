@@ -3,11 +3,18 @@
 import React from 'react'
 import { Box, useToken, Image, Drawer, Portal, CloseButton, VStack, Icon, Text } from "@chakra-ui/react"
 import { useState, useRef, useEffect } from "react"
-import { createRootCardContent, CardContent } from "@/data/cards"
+import { createCard, CardContent } from "@/data/cards"
 import { Menu, Settings, User, History, LogOut, VolumeOff, Volume2, Plus } from 'lucide-react'
 import { getHeightForLevel } from "@/utils/card-helpers"
 import { getShuffledOptions, Option } from '@/utils/card-options'
 import dynamic from 'next/dynamic'
+
+const initialContent = [
+  <Box key="root-item0" display="flex" alignItems="center" gap="4">
+    <Text color="fg">Pick your favorite animal</Text>
+  </Box>
+]
+const initialOptions = getShuffledOptions(11)
 
 const useGrayColor = () => {
   const [gray500] = useToken('colors', ['gray.500'])
@@ -17,11 +24,11 @@ const useGrayColor = () => {
 const Home = () => {
   const gray500 = useGrayColor()
   const containerRef = useRef<HTMLDivElement>(null)
-  
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
   const [expansionLevels, setExpansionLevels] = useState<{ [key: number]: number }>({})
-  const [options, setOptions] = useState<Option[]>(getShuffledOptions(11))
+  const [options] = useState<Option[]>(initialOptions)
 
   const scrollToBottom = () => {
     if (containerRef.current) {
@@ -32,13 +39,27 @@ const Home = () => {
     }
   }
 
-  const handleNextCard = () => {
+  const handleCardClick = (cardId: number, option?: Option) => {
+    if (!option) {
+      handleMoreOptions(cardId, 1)
+    } else {
+      handleNextCard(option)
+    }
+  }
+
+  const [cards, setCards] = useState<CardContent[]>([
+    createCard(0, initialContent, options, handleCardClick)
+  ])
+
+  const handleNextCard = (selectedOption?: Option) => {
     setCards(prev => {
       const newCount = prev.length
-      return [...prev, {
-        id: newCount,
-        ...rootCardContent
-      }]
+      const newContent = selectedOption ? [
+        <Box key={`card-${newCount}-content`} display="flex" alignItems="center" gap="4">
+          <Text color="fg">You selected: {selectedOption.option}</Text>
+        </Box>
+      ] : []
+      return [...prev, createCard(newCount, newContent, options, handleCardClick)]
     })
   }
 
@@ -59,12 +80,6 @@ const Home = () => {
       };
     });
   };
-
-  const rootCardContent = createRootCardContent(handleMoreOptions, handleNextCard, options)
-
-  const [cards, setCards] = useState<CardContent[]>([
-    { id: 0, ...rootCardContent }
-  ])
 
   useEffect(() => {
     scrollToBottom()

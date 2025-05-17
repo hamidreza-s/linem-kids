@@ -12,18 +12,15 @@ export type CardContent = {
   getMoreOptions: (cardId: number) => React.ReactNode;
 }
 
-export const createRootCardContent = (
-  handleMoreOptions: (cardId: number, level: number) => void,
-  handleNextCard: () => void,
+export const createCard = (
+  cardId: number,
+  content: React.ReactNode[],
   options: Option[],
-): Omit<CardContent, 'id'> => {
-  console.log(options)
+  onOptionClick: (cardId: number, option?: Option) => void,
+): CardContent => {
   return {
-    content: [
-      <Box key="root-item0" display="flex" alignItems="center" gap="4">
-        <Text color="fg">Pick your favorite animal</Text>
-      </Box>
-    ],
+    id: cardId,
+    content: content,
     getOptions: (cardId: number) => {
       return (
         <Box display="flex" gap="4" mt="4">
@@ -32,15 +29,14 @@ export const createRootCardContent = (
               key={index}
               icon={<Text fontSize={EMOJI_SIZE}>{option.option}</Text>}
               cardId={cardId}
-              iconId={`emoji-${index}`}
-              onClick={handleNextCard}
+              onClick={() => onOptionClick(cardId, option)}
             />
           ))}
           <IconButton
             icon={<Text fontSize={EMOJI_SIZE}>➕</Text>}
             cardId={cardId}
             iconId="more"
-            onClick={() => handleMoreOptions(cardId, 1)}
+            onClick={() => onOptionClick(cardId)}
           />
         </Box>
       );
@@ -54,8 +50,7 @@ export const createRootCardContent = (
                 key={index}
                 icon={<Text fontSize={EMOJI_SIZE}>{option.option}</Text>}
                 cardId={cardId}
-                iconId={`emoji-${index + 4}`}
-                onClick={handleNextCard}
+                onClick={() => onOptionClick(cardId, option)}
               />
             ))}
           </Box>
@@ -65,8 +60,7 @@ export const createRootCardContent = (
                 key={index}
                 icon={<Text fontSize={EMOJI_SIZE}>{option.option}</Text>}
                 cardId={cardId}
-                iconId={`emoji-${index + 8}`}
-                onClick={handleNextCard}
+                onClick={() => onOptionClick(cardId, option)}
               />
             ))}
           </Box>

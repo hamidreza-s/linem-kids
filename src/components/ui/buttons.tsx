@@ -8,7 +8,7 @@ interface ButtonProps {
 
 interface IconButtonProps extends ButtonProps {
   icon: React.ReactNode
-  iconId: string
+  iconId?: string
 }
 
 export const NumberButton = ({ number, cardId, onClick }: { number: number } & ButtonProps) => (
@@ -35,7 +35,7 @@ export const NumberButton = ({ number, cardId, onClick }: { number: number } & B
 
 export const IconButton = ({ icon, cardId, iconId, onClick }: IconButtonProps) => (
   <Box
-    key={`card${cardId}-icon-${iconId}`}
+    key={`card${cardId}-icon-${iconId || 'default'}`}
     as="button"
     display="flex"
     alignItems="center"
