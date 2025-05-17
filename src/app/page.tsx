@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Box, useToken, Image, Drawer, Portal, CloseButton, VStack, Icon, Text } from "@chakra-ui/react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { createCard, CardContent } from "@/data/cards"
 import { Menu, Settings, User, History, LogOut, VolumeOff, Volume2, Plus } from 'lucide-react'
 import { getHeightForLevel } from "@/utils/card-helpers"
@@ -40,6 +40,11 @@ const Home = () => {
   const [expansionLevels, setExpansionLevels] = useState<{ [key: string]: number }>({})
   const [clientId] = useState(() => Math.random().toString(36).substring(2, 15))
   const [cards, setCards] = useState<CardContent[]>([])
+  const [pendingRequest, setPendingRequest] = useState<{
+    id: string;
+    option: Option;
+    sourceImage: string;
+  } | null>(null)
 
   const scrollToBottom = () => {
     if (containerRef.current) {
@@ -50,78 +55,15 @@ const Home = () => {
     }
   }
 
-  const handleCardClick = (cardId: string, option?: Option) => {
-    if (!option) {
-      handleMoreOptions(cardId, 1)
-    } else {
-      setCards(currentCards => {
-        const clickedCard = currentCards.find(card => card.id === cardId);
-        if (clickedCard) {
-          handleNextCard(option, clickedCard.image);
-        }
-        return currentCards;
-      });
-    }
-  }
+  // Forward declare the types
+  type CardClickHandler = (cardId: string, option?: Option) => void;
+  type NextCardHandler = (selectedOption?: Option, sourceImage?: string) => Promise<void>;
 
-  const handleNextCard = async (selectedOption?: Option, sourceImage?: string) => {
-    if (!selectedOption) return;
+  // Create refs to store the handlers
+  const handleCardClickRef = useRef<CardClickHandler | null>(null);
+  const handleNextCardRef = useRef<NextCardHandler | null>(null);
 
-    const newId = generateUniqueId();
-    const newOptions = getShuffledOptions(11);
-
-    // Create a temporary card with loading state
-    const tempContent = [
-      <Box key={`loading-${newId}`} display="flex" alignItems="center" gap="4">
-        <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
-          <Spinner/>
-        </Box>
-      </Box>
-    ];
-
-    // Add the temporary card
-    const tempCard = createCard(newId, tempContent, sourceImage || initialImage, newOptions, handleCardClick);
-    
-    setCards(prev => {
-      // Remove any existing temporary cards
-      const filteredCards = prev.filter(card => !card.content.some(content => 
-        React.isValidElement(content) && content.key?.toString().startsWith('loading-')
-      ));
-      return [...filteredCards, tempCard];
-    });
-
-    try {
-      console.log('Calling API for option:', selectedOption.verb, 'with image:', sourceImage);
-      const url = `/api/edit?session=${clientId}&prompt=${encodeURIComponent(selectedOption.verb)}&image=${sourceImage}`;
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data?.[0]?.url) {
-        const newContent = [
-          <Box key={`content-${newId}`} display="flex" alignItems="center" gap="4">
-            <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
-              <Image src={data[0].url} alt="Generated Image" height="200px" objectFit="contain" rounded="2xl" />
-              <Text color="fg">You selected: {selectedOption.option}</Text>
-            </Box>
-          </Box>
-        ];
-
-        // Update the card with the new content
-        setCards(prev => {
-          const updatedCards = [...prev];
-          const cardIndex = updatedCards.findIndex(card => card.id === newId);
-          if (cardIndex !== -1) {
-            updatedCards[cardIndex] = createCard(newId, newContent, data[0].url, newOptions, handleCardClick);
-          }
-          return updatedCards;
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching generated image:', error);
-    }
-  }
-
-  const handleMoreOptions = (cardId: string, level: number) => {
+  const handleMoreOptions = useCallback((cardId: string, level: number) => {
     setExpansionLevels(prev => {
       const currentLevel = prev[cardId] || 0;
       // If we're already at the specified level, collapse back to 0
@@ -137,12 +79,118 @@ const Home = () => {
         [cardId]: level
       };
     });
+  }, []);
+
+  // Define handleNextCard first
+  handleNextCardRef.current = async (selectedOption?: Option, sourceImage?: string) => {
+    if (!selectedOption) return;
+
+    const newId = generateUniqueId();
+    const newOptions = getShuffledOptions(11);
+
+    // Create a temporary card with loading state
+    const tempContent = [
+      <Box key={`loading-${newId}`} display="flex" alignItems="center" gap="4">
+        <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
+          <Spinner/>
+        </Box>
+      </Box>
+    ];
+
+    // Add the temporary card with spinner
+    const tempCard = createCard(newId, tempContent, sourceImage || initialImage, newOptions, handleCardClickRef.current!);
+    
+    setCards(prev => {
+      // Remove any existing temporary cards
+      const filteredCards = prev.filter(card => !card.content.some(content => 
+        React.isValidElement(content) && content.key?.toString().startsWith('loading-')
+      ));
+      return [...filteredCards, tempCard];
+    });
+
+    // Set the pending request instead of making the API call directly
+    setPendingRequest({
+      id: newId,
+      option: selectedOption,
+      sourceImage: sourceImage || initialImage
+    });
   };
+
+  // Then define handleCardClick
+  handleCardClickRef.current = (cardId: string, option?: Option) => {
+    if (!option) {
+      handleMoreOptions(cardId, 1)
+    } else {
+      setCards(currentCards => {
+        const clickedCard = currentCards.find(card => card.id === cardId);
+        if (clickedCard) {
+          handleNextCardRef.current!(option, clickedCard.image);
+        }
+        return currentCards;
+      });
+    }
+  };
+
+  // Create stable callbacks for use in effects and event handlers
+  const handleCardClick = useCallback<CardClickHandler>((cardId, option) => {
+    handleCardClickRef.current?.(cardId, option);
+  }, []);
+
+  const handleNextCard = useCallback<NextCardHandler>(async (selectedOption, sourceImage) => {
+    await handleNextCardRef.current?.(selectedOption, sourceImage);
+  }, []);
+
+  // Handle API calls in useEffect
+  useEffect(() => {
+    const fetchGeneratedImage = async () => {
+      if (!pendingRequest) return;
+
+      try {
+        console.log('Calling API for option:', pendingRequest.option.verb, 'with image:', pendingRequest.sourceImage);
+        const url = `/api/edit?session=${clientId}&prompt=${encodeURIComponent(pendingRequest.option.verb)}&image=${pendingRequest.sourceImage}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data?.[0]?.url) {
+          const newContent = [
+            <Box key={`content-${pendingRequest.id}`} display="flex" alignItems="center" gap="4">
+              <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
+                <Image src={data[0].url} alt="Generated Image" height="200px" objectFit="contain" rounded="2xl" />
+                <Text color="fg">You selected: {pendingRequest.option.option}</Text>
+              </Box>
+            </Box>
+          ];
+
+          // Update the card with the new content
+          setCards(prev => {
+            const updatedCards = [...prev];
+            const cardIndex = updatedCards.findIndex(card => card.id === pendingRequest.id);
+            if (cardIndex !== -1) {
+              updatedCards[cardIndex] = createCard(
+                pendingRequest.id,
+                newContent,
+                data[0].url,
+                getShuffledOptions(11),
+                handleCardClick
+              );
+            }
+            return updatedCards;
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching generated image:', error);
+      } finally {
+        setPendingRequest(null);
+      }
+    };
+
+    fetchGeneratedImage();
+  }, [pendingRequest, clientId, handleCardClick]);
 
   // Initialize the first card
   useEffect(() => {
     setCards([createCard(generateUniqueId(), initialContent, initialImage, initialOptions, handleCardClick)]);
-  }, []);
+  }, [handleCardClick]);
 
   useEffect(() => {
     scrollToBottom()
