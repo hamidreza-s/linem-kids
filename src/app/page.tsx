@@ -5,7 +5,6 @@ import { Box, useToken, Image, Drawer, Portal, CloseButton, VStack, Icon, Text }
 import { useState, useRef, useEffect, useCallback } from "react"
 import { createCard, CardContent } from "@/data/cards"
 import { Menu, Settings, User, History, LogOut, VolumeOff, Volume2, Plus } from 'lucide-react'
-import { getHeightForLevel } from "@/utils/card-helpers"
 import { getShuffledOptions, Option } from '@/utils/card-options'
 import dynamic from 'next/dynamic'
 import { Spinner } from '@/components/ui/spinner'
@@ -263,11 +262,11 @@ const Home = () => {
         flexDirection="column"
         alignItems="center"
         height="90vh"
+        width="90vw"
+        marginX="auto"
         overflowY="auto"
       >
         {cards.map((card) => {
-          const currentExpansionLevel = expansionLevels[card.id] || 0;
-          const heights = getHeightForLevel(currentExpansionLevel);
           return (
             <Box key={card.id} display="flex" flexDirection="column" alignItems="center">
               {/* Empty Space */}
@@ -276,7 +275,7 @@ const Home = () => {
 
               {/* Card */}
               <Box
-                height={heights.cardHeight}
+                height="70vh"
                 width="90vw"
                 transition="height 0.2s"
                 display="flex"
@@ -292,12 +291,12 @@ const Home = () => {
                 display="flex"
                 flexDirection="column"
                 alignItems="center"
-                height={heights.optionsHeight}
+                height="15vh"
                 width="90vw"
                 transition="height 0.2s"
+                overflow="hidden"
               >
                 {card.getOptions(card.id)}
-                {currentExpansionLevel > 0 && card.getMoreOptions(card.id)}
               </Box>
             </Box>
           )
