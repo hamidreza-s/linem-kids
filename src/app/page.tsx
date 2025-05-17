@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react"
 import { createRootCardContent, CardContent } from "@/data/cards"
 import { Menu, Settings, User, History, LogOut, VolumeOff, Volume2, Plus } from 'lucide-react'
 import { getHeightForLevel } from "@/utils/card-helpers"
-import { getShuffledOptions } from '@/utils/card-options'
+import { getShuffledOptions, Option } from '@/utils/card-options'
 import dynamic from 'next/dynamic'
 
 const useGrayColor = () => {
@@ -17,10 +17,11 @@ const useGrayColor = () => {
 const Home = () => {
   const gray500 = useGrayColor()
   const containerRef = useRef<HTMLDivElement>(null)
+  
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
   const [expansionLevels, setExpansionLevels] = useState<{ [key: number]: number }>({})
-  const [options, setOptions] = useState<{ index: number; emoji: string }[]>(getShuffledOptions(11))
+  const [options, setOptions] = useState<Option[]>(getShuffledOptions(11))
 
   const scrollToBottom = () => {
     if (containerRef.current) {
@@ -62,7 +63,7 @@ const Home = () => {
   const rootCardContent = createRootCardContent(handleMoreOptions, handleNextCard, options)
 
   const [cards, setCards] = useState<CardContent[]>([
-    { id: 0, ...createRootCardContent(handleMoreOptions, handleNextCard, options) }
+    { id: 0, ...rootCardContent }
   ])
 
   useEffect(() => {

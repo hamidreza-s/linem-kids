@@ -3,7 +3,7 @@
 import React from 'react'
 import { Box, Text } from "@chakra-ui/react"
 import { IconButton } from "@/components/ui/buttons"
-import { EMOJI_SIZE } from "@/utils/card-options"
+import { EMOJI_SIZE, Option } from "@/utils/card-options"
 
 export type CardContent = {
   id: number;
@@ -15,7 +15,7 @@ export type CardContent = {
 export const createRootCardContent = (
   handleMoreOptions: (cardId: number, level: number) => void,
   handleNextCard: () => void,
-  options: { index: number; emoji: string }[],
+  options: Option[],
 ): Omit<CardContent, 'id'> => {
   console.log(options)
   return {
@@ -27,10 +27,10 @@ export const createRootCardContent = (
     getOptions: (cardId: number) => {
       return (
         <Box display="flex" gap="4" mt="4">
-          {options.slice(0, 3).map((emoji, index) => (
+          {options.slice(0, 3).map((option, index) => (
             <IconButton
               key={index}
-              icon={<Text fontSize={EMOJI_SIZE}>{emoji.emoji}</Text>}
+              icon={<Text fontSize={EMOJI_SIZE}>{option.option}</Text>}
               cardId={cardId}
               iconId={`emoji-${index}`}
               onClick={handleNextCard}
@@ -49,10 +49,10 @@ export const createRootCardContent = (
       return (
         <>
           <Box display="flex" gap="4" mt="4">
-            {options.slice(3, 7).map((emoji, index) => (
+            {options.slice(3, 7).map((option, index) => (
               <IconButton
                 key={index}
-                icon={<Text fontSize={EMOJI_SIZE}>{emoji.emoji}</Text>}
+                icon={<Text fontSize={EMOJI_SIZE}>{option.option}</Text>}
                 cardId={cardId}
                 iconId={`emoji-${index + 4}`}
                 onClick={handleNextCard}
@@ -60,10 +60,10 @@ export const createRootCardContent = (
             ))}
           </Box>
           <Box display="flex" gap="4" mt="4">
-            {options.slice(7, 11).map((emoji, index) => (
+            {options.slice(7, 11).map((option, index) => (
               <IconButton
                 key={index}
-                icon={<Text fontSize={EMOJI_SIZE}>{emoji.emoji}</Text>}
+                icon={<Text fontSize={EMOJI_SIZE}>{option.option}</Text>}
                 cardId={cardId}
                 iconId={`emoji-${index + 8}`}
                 onClick={handleNextCard}
