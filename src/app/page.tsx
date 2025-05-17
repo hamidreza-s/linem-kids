@@ -189,7 +189,7 @@ const Home = () => {
 
         {/* Logo */}
         <Box display="flex" alignItems="center" gap={2}>
-          <Image src="/linem-logo.png" alt="Linem Logo" height="32px" />
+          <Image src="/linem-logo.png" alt="Linem Logo" height="54px" />
           <Image src="/linem-text.png" alt="Linem" height="24px" />
           <Text>Kids</Text>
         </Box>
