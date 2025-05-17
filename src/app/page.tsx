@@ -8,9 +8,10 @@ import { Menu, Settings, User, History, LogOut, VolumeOff, Volume2, Plus } from 
 import { getHeightForLevel } from "@/utils/card-helpers"
 import { getShuffledOptions, Option } from '@/utils/card-options'
 import dynamic from 'next/dynamic'
+import { Spinner } from '@/components/ui/spinner'
 
 
-const initialImage = "https://ga4qgrohzaj2x9di.public.blob.vercel-storage.com/card-0-intro-0-BnSrlmKOEIySWXig7z4vKj70ZmJcXV.jpg"
+const initialImage = "https://ga4qgrohzaj2x9di.public.blob.vercel-storage.com/linem-for-kids/card-0-intro-1-F0xesiZnHkaDyuoSTfTr04AHEr62LK.jpg"
 const initialContent = [
   <Box key="root-item0" display="flex" alignItems="center" gap="4">
     <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
@@ -37,8 +38,8 @@ const Home = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
   const [expansionLevels, setExpansionLevels] = useState<{ [key: string]: number }>({})
-  const [options] = useState<Option[]>(initialOptions)
   const [clientId] = useState(() => Math.random().toString(36).substring(2, 15))
+  const [cards, setCards] = useState<CardContent[]>([])
 
   const scrollToBottom = () => {
     if (containerRef.current) {
@@ -53,56 +54,70 @@ const Home = () => {
     if (!option) {
       handleMoreOptions(cardId, 1)
     } else {
-      handleNextCard(option)
+      setCards(currentCards => {
+        const clickedCard = currentCards.find(card => card.id === cardId);
+        if (clickedCard) {
+          handleNextCard(option, clickedCard.image);
+        }
+        return currentCards;
+      });
     }
   }
 
-  const [cards, setCards] = useState<CardContent[]>([
-    createCard(generateUniqueId(), initialContent, initialImage, options, handleCardClick)
-  ])
+  const handleNextCard = async (selectedOption?: Option, sourceImage?: string) => {
+    if (!selectedOption) return;
 
-  const handleNextCard = async (selectedOption?: Option) => {
-    if (selectedOption) {
-      const newId = generateUniqueId();
-      
-      // Create a temporary card with loading state
-      const tempContent = [
-        <Box key={`loading-${newId}`} display="flex" alignItems="center" gap="4">
-          <Text color="fg">Loading...</Text>
+    const newId = generateUniqueId();
+    const newOptions = getShuffledOptions(11);
+
+    // Create a temporary card with loading state
+    const tempContent = [
+      <Box key={`loading-${newId}`} display="flex" alignItems="center" gap="4">
+        <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
+          <Spinner/>
         </Box>
-      ];
-      
-      // Add the temporary card
-      setCards(prev => [...prev, createCard(newId, tempContent, initialImage, options, handleCardClick)]);
+      </Box>
+    ];
 
-      try {
-        const response = await fetch(`/api/generate?session=${clientId}&prompt=${encodeURIComponent(selectedOption.option)}`);
-        const data = await response.json();
-        
-        if (data && data[0] && data[0].url) {
-          const newContent = [
-            <Box key={`content-${newId}`} display="flex" alignItems="center" gap="4">
-              <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
-                <Image src={data[0].url} alt="Generated Image" height="200px" objectFit="contain" rounded="2xl" />
-                <Text color="fg">You selected: {selectedOption.option}</Text>
-              </Box>
+    // Add the temporary card
+    const tempCard = createCard(newId, tempContent, sourceImage || initialImage, newOptions, handleCardClick);
+    
+    setCards(prev => {
+      // Remove any existing temporary cards
+      const filteredCards = prev.filter(card => !card.content.some(content => 
+        React.isValidElement(content) && content.key?.toString().startsWith('loading-')
+      ));
+      return [...filteredCards, tempCard];
+    });
+
+    try {
+      console.log('Calling API for option:', selectedOption.verb, 'with image:', sourceImage);
+      const url = `/api/edit?session=${clientId}&prompt=${encodeURIComponent(selectedOption.verb)}&image=${sourceImage}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data?.[0]?.url) {
+        const newContent = [
+          <Box key={`content-${newId}`} display="flex" alignItems="center" gap="4">
+            <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
+              <Image src={data[0].url} alt="Generated Image" height="200px" objectFit="contain" rounded="2xl" />
+              <Text color="fg">You selected: {selectedOption.option}</Text>
             </Box>
-          ];
-          
-          // Update the card with the new content
-          setCards(prev => {
-            const updatedCards = [...prev];
-            const cardIndex = updatedCards.findIndex(card => card.id === newId);
-            if (cardIndex !== -1) {
-              updatedCards[cardIndex] = createCard(newId, newContent, data[0].url, options, handleCardClick);
-            }
-            return updatedCards;
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching generated image:', error);
-        // Optionally handle error state here
+          </Box>
+        ];
+
+        // Update the card with the new content
+        setCards(prev => {
+          const updatedCards = [...prev];
+          const cardIndex = updatedCards.findIndex(card => card.id === newId);
+          if (cardIndex !== -1) {
+            updatedCards[cardIndex] = createCard(newId, newContent, data[0].url, newOptions, handleCardClick);
+          }
+          return updatedCards;
+        });
       }
+    } catch (error) {
+      console.error('Error fetching generated image:', error);
     }
   }
 
@@ -123,6 +138,11 @@ const Home = () => {
       };
     });
   };
+
+  // Initialize the first card
+  useEffect(() => {
+    setCards([createCard(generateUniqueId(), initialContent, initialImage, initialOptions, handleCardClick)]);
+  }, []);
 
   useEffect(() => {
     scrollToBottom()
