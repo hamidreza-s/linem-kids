@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Box, Text } from "@chakra-ui/react"
+import { Box, Text, Image } from "@chakra-ui/react"
 import { IconButton } from "@/components/ui/buttons"
 import { EMOJI_SIZE, Option } from "@/utils/card-options"
 
@@ -13,6 +13,14 @@ export type CardContent = {
   getMoreOptions: (cardId: string) => React.ReactNode;
 }
 
+const CardContentWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Box key="root-item" display="flex" alignItems="center" justifyContent="center" height="100%" width="100%">
+    <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" textAlign="center" gap="4" width="100%" height="100%">
+      {children}
+    </Box>
+  </Box>
+);
+
 export const createCard = (
   cardId: string,
   content: React.ReactNode[],
@@ -22,7 +30,11 @@ export const createCard = (
 ): CardContent => {
   return {
     id: cardId,
-    content: content,
+    content: content.map((item, index) => (
+      <CardContentWrapper key={`content-${cardId}-${index}`}>
+        {item}
+      </CardContentWrapper>
+    )),
     image: image,
     getOptions: (cardId: string) => {
       return (

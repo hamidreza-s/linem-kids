@@ -13,12 +13,9 @@ import { Spinner } from '@/components/ui/spinner'
 
 const initialImage = "https://ga4qgrohzaj2x9di.public.blob.vercel-storage.com/linem-for-kids/card-0-intro-1-F0xesiZnHkaDyuoSTfTr04AHEr62LK.jpg"
 const initialContent = [
-  <Box key="root-item0" display="flex" alignItems="center" gap="4">
-    <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
-      <Image src={initialImage} alt="Initial Image" height="200px" objectFit="contain" rounded="2xl" />
-      <Text color="fg" fontSize="2xl">Pick your favorite animal</Text>
-    </Box>
-  </Box>
+  <>
+    <Image src={initialImage} alt="Initial Image" height="70vh" objectFit="contain" rounded="2xl" />
+  </>
 ]
 const initialOptions = getShuffledOptions(11)
 
@@ -90,11 +87,7 @@ const Home = () => {
 
     // Create a temporary card with loading state
     const tempContent = [
-      <Box key={`loading-${newId}`} display="flex" alignItems="center" gap="4">
-        <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
-          <Spinner/>
-        </Box>
-      </Box>
+      <Spinner key="loading-spinner" />
     ];
 
     // Add the temporary card with spinner
@@ -121,13 +114,10 @@ const Home = () => {
     if (!option) {
       handleMoreOptions(cardId, 1)
     } else {
-      setCards(currentCards => {
-        const clickedCard = currentCards.find(card => card.id === cardId);
-        if (clickedCard) {
-          handleNextCardRef.current!(option, clickedCard.image);
-        }
-        return currentCards;
-      });
+      const clickedCard = cards.find(card => card.id === cardId);
+      if (clickedCard) {
+        handleNextCardRef.current!(option, clickedCard.image);
+      }
     }
   };
 
@@ -153,12 +143,9 @@ const Home = () => {
 
         if (data?.[0]?.url) {
           const newContent = [
-            <Box key={`content-${pendingRequest.id}`} display="flex" alignItems="center" gap="4">
-              <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" gap="4" width="100%" mt="6">
-                <Image src={data[0].url} alt="Generated Image" height="200px" objectFit="contain" rounded="2xl" />
-                <Text color="fg">You selected: {pendingRequest.option.option}</Text>
-              </Box>
-            </Box>
+            <>
+              <Image src={data[0].url} alt="Generated Image" objectFit="contain"  height="70vh" rounded="2xl"/>
+            </>
           ];
 
           // Update the card with the new content
@@ -289,16 +276,13 @@ const Home = () => {
 
               {/* Card */}
               <Box
-                p="4"
-                borderWidth="2px"
-                borderColor={gray500}
-                rounded="2xl"
-                bg="bg"
                 height={heights.cardHeight}
                 width="90vw"
                 transition="height 0.2s"
+                display="flex"
+                flexDirection="column"
               >
-                <Box display="flex" flexDirection="column" gap="4">
+                <Box display="flex" flexDirection="column" flex="1">
                   {card.content}
                 </Box>
               </Box>
